@@ -19,17 +19,45 @@ namespace winforms_hotkeys
                         EnableButtons(false);
                         CurrentCommandContext = new CommandContext();
                         textBox.Text = "RunningText" + Environment.NewLine;
-                        for (int i = 1; i <= 5; i++)
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                        var buttonArray = new[] { radioPhase1, radioPhase2, radioPhase3 };
+                        for (int i = 0; i < 3; i++)
                         {
-                            await Task.Delay(500);
-                            textBox.AppendText($"Phase {i}{Environment.NewLine}");
+                            CurrentCommandContext = new CommandContext();
+                            BeginInvoke(() =>
+                            {
+                                var button = buttonArray[i];
+                                button.Enabled = true;
+                                button.PerformClick();
+                                button.Enabled = false;
+                            });
+                            await CurrentCommandContext;
                         }
+                        CurrentCommandContext = null;
                     }
                     finally
                     {
                         EnableButtons(true);
                     }
                 });
+            };
+            radioPhase1.Click += async (sender, e) =>
+            {
+                textBox.AppendText($"Running {(sender as Control)?.Text}{Environment.NewLine}");
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                CurrentCommandContext?.Release();
+            };
+            radioPhase2.Click += async (sender, e) =>
+            {
+                textBox.AppendText($"Running {(sender as Control)?.Text}{Environment.NewLine}");
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                CurrentCommandContext?.Release();
+            };
+            radioPhase3.Click += async(sender, e) =>
+            {
+                textBox.AppendText($"Running {(sender as Control)?.Text}{Environment.NewLine}");
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                CurrentCommandContext?.Release();
             };
             buttonClose.Click += (sender, e) =>
             {
@@ -51,7 +79,7 @@ namespace winforms_hotkeys
 
         private void EnableButtons(bool enabled)
         {
-            foreach (Button button in Controls.OfType<Button>())
+            foreach (var button in Controls.OfType<ButtonBase>())
             {
                 button.Enabled = enabled;
             }

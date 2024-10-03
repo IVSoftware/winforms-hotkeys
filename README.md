@@ -1,6 +1,6 @@
 If I understand your intent, you probably want to disable the buttons while a test is running _regardless_ of whether invoked by a click or by a shortcut. And since it sounds as though you need to do some asynchronous things (i.e. without blocking), the MRE below shows how to use `BeginInvoke` and `async` lambdas in order to do that without resorting to `Application.DoEvents()`.
 
-As far as shortcuts go, one of the easiest ways to make a hot key is to use the ampersand in conjunction with the button text, for example `&Run`. Then, pressing the `[ALT]` key will make the shortcuts visible, and pressing `[Alt] + R` will raise the click event on the button (whichever character follows the ampersand, so `R&un` would activate on `[Alt] + U` instead).
+As far as shortcuts go, one of the easiest ways to make a hot key is to use the ampersand in conjunction with the button text, for example `&Run`. Then, pressing the `[ALT]` key will make the shortcuts visible, and pressing `[Alt] + R` will raise the click event on the button (whichever character follows the ampersand, so `R&un` would activate on `[Alt] + U` instead). This is a built-in feature of `Button``.
 
 ___
 

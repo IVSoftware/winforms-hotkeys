@@ -19,7 +19,7 @@ namespace winforms_hotkeys
 
         private void OnExit()
         {
-            if(DialogResult.OK == MessageBox.Show("Application is exiting!"))
+            if(DialogResult.OK == MessageBox.Show("Application is exiting!", "Control-C Detected", MessageBoxButtons.OKCancel))
             {
                 Close();
             }
@@ -38,7 +38,7 @@ namespace winforms_hotkeys
                 Keys keyData = (Keys)(int)m.WParam | Control.ModifierKeys;
                 if (Shortcuts.TryGetValue(keyData, out var action))
                 {
-                    action();
+                    BeginInvoke(()=> action());
                     return true;
                 }
             }

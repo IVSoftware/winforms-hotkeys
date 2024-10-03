@@ -1,10 +1,12 @@
-If I understand your intent, you probably want to disable the buttons while a test is running _regardless_ of whether invoked by a click or by a shortcut. And since it sounds as though you need to do some asynchronous things without blocking, the MRE below shows how to do that without resorting to `Application.DoEvents()`.
+If I understand your intent, you probably want to disable the buttons while a test is running _regardless_ of whether invoked by a click or by a shortcut. And since it sounds as though you need to do some asynchronous things (i.e. without blocking), the MRE below shows how to do that without resorting to `Application.DoEvents()`.
 
-As far as shortcuts go, one of the easiest ways to make a hot key is to us the ampersand in combination with the button text, for example `&Run`. Then, pressing the [ALT] key will make the shortcuts visible, and pressing[Alt] + R will run the test.
+As far as shortcuts go, one of the easiest ways to make a hot key is to use the ampersand in conjunction with the button text, for example `&Run`. Then, pressing the [ALT] key will make the shortcuts visible, and pressing[Alt] + R will run the test.
 
 ___
 
 ##### Minimal Reproducible Example
+
+[![shortcut keys][1]][1]
 
 ```
 public partial class MainForm : Form
@@ -52,9 +54,8 @@ public partial class MainForm : Form
             button.Enabled = enabled;
         }
     }
-
-    private Dictionary<Keys, Action> Shortcuts { get; }
-
-    CommandContext? CurrentCommandContext { get; set; }
 }
 ```
+
+
+  [1]: https://i.sstatic.net/mLONNzhD.png

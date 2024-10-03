@@ -48,10 +48,15 @@ namespace winforms_hotkeys
             }
         }
 
-        private Dictionary<Keys, Action> Shortcuts { get; }
-
+        /// <summary>
+        /// Provides another way to manage asynchronicity. Not used in the current example, however.
+        /// </summary>
         CommandContext? CurrentCommandContext { get; set; }
     }
+
+    /// <summary>
+    /// Provides another way to manage asynchronicity. Not used in the current example, however.
+    /// </summary>
     public class CommandContext
         : EventArgs  // Bonus - Be able to fire any context as an EventArgs e (and potentially await on the server side)
     {

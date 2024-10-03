@@ -1,12 +1,15 @@
 using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 
 namespace winforms_hotkeys
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IMessageFilter
     {
         public MainForm()
         {
             InitializeComponent();
+            Application.AddMessageFilter(this);
+            Disposed += (sender, e) => Application.RemoveMessageFilter(this);
             buttonRun.Click += (sender, e) =>
             {
                 BeginInvoke(async() =>
@@ -38,6 +41,12 @@ namespace winforms_hotkeys
                     }
                 });
             };
+
+            Shortcuts = new Dictionary<Keys, Action>
+            {
+                { Keys.Control | Keys.R, ()=> buttonRun.PerformClick() },
+                { Keys.Control | Keys.C, ()=> buttonClose.PerformClick() },
+            };
         }
 
         private void EnableButtons(bool enabled)
@@ -46,6 +55,25 @@ namespace winforms_hotkeys
             {
                 button.Enabled = enabled;
             }
+        }
+
+        private Dictionary<Keys, Action> Shortcuts { get; }
+
+        const int WM_KEYDOWN = 0x0100;
+        public bool PreFilterMessage(ref Message m)
+        {
+            switch (m.Msg)
+            {
+                case WM_KEYDOWN:
+                    Keys keyData = (Keys)(int)m.WParam | Control.ModifierKeys;
+                    if (Shortcuts.TryGetValue(keyData, out var action))
+                    {
+                        action();
+                        return true;
+                    }
+                    break;
+            }
+            return false;
         }
 
         /// <summary>

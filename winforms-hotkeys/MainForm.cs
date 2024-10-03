@@ -46,36 +46,55 @@ namespace winforms_hotkeys
             {
                 textBox.AppendText($"Running {(sender as Control)?.Text}{Environment.NewLine}");
                 await Task.Delay(TimeSpan.FromSeconds(1));
-                CurrentCommandContext?.Release();
+                ReleaseCurrentCommandContext();
             };
             radioPhase2.Click += async (sender, e) =>
             {
                 textBox.AppendText($"Running {(sender as Control)?.Text}{Environment.NewLine}");
                 await Task.Delay(TimeSpan.FromSeconds(1));
-                CurrentCommandContext?.Release();
+                ReleaseCurrentCommandContext();
             };
             radioPhase3.Click += async(sender, e) =>
             {
                 textBox.AppendText($"Running {(sender as Control)?.Text}{Environment.NewLine}");
                 await Task.Delay(TimeSpan.FromSeconds(1));
-                CurrentCommandContext?.Release();
+                ReleaseCurrentCommandContext();
             };
             buttonClose.Click += (sender, e) =>
             {
                 BeginInvoke(() =>
                 {
-                    if (DialogResult.OK == MessageBox.Show("Application is exiting!", "Alt-C Detected", MessageBoxButtons.OKCancel))
+                    var caption = CurrentCommandContext is null ? "Warning" : "Alt-C Detected";
+                    if (DialogResult.OK == MessageBox.Show("Application is exiting!", caption, MessageBoxButtons.OKCancel))
                     {
-                        BeginInvoke(()=>Close());
+                        BeginInvoke(() =>
+                        {
+                            Close();
+                            ReleaseCurrentCommandContext();
+                        });
                     }
+                    else ReleaseCurrentCommandContext();
                 });
             };
 
             Shortcuts = new Dictionary<Keys, Action>
             {
                 { Keys.Control | Keys.R, ()=> buttonRun.PerformClick() },
-                { Keys.Control | Keys.C, ()=> buttonClose.PerformClick() },
+                { Keys.Control | Keys.C, ()=>
+                {
+                    CurrentCommandContext = new CommandContext();
+                    buttonClose.PerformClick();
+                } },
             };
+        }
+
+        private void ReleaseCurrentCommandContext()
+        {
+            if( CurrentCommandContext != null )
+            {
+                CurrentCommandContext.Release();
+                CurrentCommandContext = null;
+            }
         }
 
         private void EnableButtons(bool enabled)

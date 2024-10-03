@@ -16,11 +16,12 @@ namespace winforms_hotkeys
                 {
                     try
                     {
-                        EnableButtons(false);
                         CurrentCommandContext = new CommandContext();
                         textBox.Text = "RunningText" + Environment.NewLine;
-                        await Task.Delay(TimeSpan.FromSeconds(1));
                         var buttonArray = new[] { radioPhase1, radioPhase2, radioPhase3 };
+                        foreach (var button in buttonArray) button.Checked = false;
+                        EnableButtons(false);
+                        await Task.Delay(TimeSpan.FromSeconds(1));
                         for (int i = 0; i < 3; i++)
                         {
                             CurrentCommandContext = new CommandContext();
@@ -105,13 +106,14 @@ namespace winforms_hotkeys
         }
 
         /// <summary>
-        /// Provides another way to manage asynchronicity. Not used in the current example, however.
+        /// Manage asynchronicity.
         /// </summary>
         CommandContext? CurrentCommandContext { get; set; }
     }
 
+
     /// <summary>
-    /// Provides another way to manage asynchronicity. Not used in the current example, however.
+    /// Manage asynchronicity.
     /// </summary>
     public class CommandContext
         : EventArgs  // Bonus - Be able to fire any context as an EventArgs e (and potentially await on the server side)

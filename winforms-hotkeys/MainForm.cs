@@ -1,48 +1,67 @@
+using System.Runtime.CompilerServices;
 
 namespace winforms_hotkeys
 {
-    public partial class MainForm : Form, IMessageFilter
+    public partial class MainForm : Form
     {
         public MainForm()
         {
             InitializeComponent();
-            Application.AddMessageFilter(this);
-            Disposed += (sender, e) => Application.RemoveMessageFilter(this);
-
-            // Add the shortcut methods you need
-            Shortcuts = new Dictionary<Keys, Action>
+            buttonRun.Click += (sender, e) =>
             {
-                { Keys.F9, OnKeyF9 },
-                { Keys.Control | Keys.C, OnExit },
+                BeginInvoke(async() =>
+                {
+                    try
+                    {
+                        EnableButtons(false);
+                        CurrentCommandContext = new CommandContext();
+                        textBox.Text = "RunningText" + Environment.NewLine;
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            await Task.Delay(500);
+                            textBox.AppendText($"Phase {i}{Environment.NewLine}");
+                        }
+                    }
+                    finally
+                    {
+                        EnableButtons(true);
+                    }
+                });
+            };
+            buttonClose.Click += (sender, e) =>
+            {
+                BeginInvoke(() =>
+                {
+                    if (DialogResult.OK == MessageBox.Show("Application is exiting!", "Alt-C Detected", MessageBoxButtons.OKCancel))
+                    {
+                        BeginInvoke(()=>Close());
+                    }
+                });
             };
         }
 
-        private void OnExit()
+        private void EnableButtons(bool enabled)
         {
-            if(DialogResult.OK == MessageBox.Show("Application is exiting!", "Control-C Detected", MessageBoxButtons.OKCancel))
+            foreach (Button button in Controls.OfType<Button>())
             {
-                Close();
+                button.Enabled = enabled;
             }
         }
 
         private Dictionary<Keys, Action> Shortcuts { get; }
 
-        private void OnKeyF9()
+        CommandContext? CurrentCommandContext { get; set; }
+    }
+    public class CommandContext
+        : EventArgs  // Bonus - Be able to fire any context as an EventArgs e (and potentially await on the server side)
+    {
+        private SemaphoreSlim _busy { get; } = new SemaphoreSlim(0, 1);
+        public TaskAwaiter GetAwaiter()
         {
-            textBox1.Text = $"{nameof(OnKeyF9)} Detected!";
+            return _busy
+            .WaitAsync()        // Do not use the Token here
+            .GetAwaiter();
         }
-        public bool PreFilterMessage(ref Message m)
-        {
-            if (m.Msg == 0x100)
-            {
-                Keys keyData = (Keys)(int)m.WParam | Control.ModifierKeys;
-                if (Shortcuts.TryGetValue(keyData, out var action))
-                {
-                    BeginInvoke(()=> action());
-                    return true;
-                }
-            }
-            return false;
-        }
+        internal void Release() => _busy.Release();
     }
 }

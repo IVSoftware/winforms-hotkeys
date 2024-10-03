@@ -1,52 +1,60 @@
-As I understand it, you'd like to establish some hot keys without cluttering up the code with a massive amount of `KeyDown` hooks by way of events.  The `IMessageFilter` interface, which is easy to implement for a `Form`, is ideal for this because it doesn't matter which child control on the `Form` currently has the focus.
+If I understand your intent, you probably want to disable the buttons while a test is running _regardless_ of whether invoked by a click or by a shortcut. And since it sounds as though you need to do some asynchronous things without blocking, the MRE below shows how to do that without resorting to `Application.DoEvents()`.
+
+As far as shortcuts go, one of the easiest ways to make a hot key is to us the ampersand in combination with the button text, for example `&Run`. Then, pressing the [ALT] key will make the shortcuts visible, and pressing[Alt] + R will run the test.
 
 ___
 
 ##### Minimal Reproducible Example
 
 ```
-public partial class MainForm : Form, IMessageFilter
+public partial class MainForm : Form
 {
     public MainForm()
     {
         InitializeComponent();
-        Application.AddMessageFilter(this);
-        Disposed += (sender, e) => Application.RemoveMessageFilter(this);
-
-        // Add the shortcut methods you need
-        Shortcuts = new Dictionary<Keys, Action>
+        buttonRun.Click += (sender, e) =>
         {
-            { Keys.F9, OnKeyF9 },
-            { Keys.Control | Keys.C, OnExit },
+            BeginInvoke(async() =>
+            {
+                try
+                {
+                    EnableButtons(false);
+                    CurrentCommandContext = new CommandContext();
+                    textBox.Text = "RunningText" + Environment.NewLine;
+                    for (int i = 1; i <= 5; i++)
+                    {
+                        await Task.Delay(500);
+                        textBox.AppendText($"Phase {i}{Environment.NewLine}");
+                    }
+                }
+                finally
+                {
+                    EnableButtons(true);
+                }
+            });
+        };
+        buttonClose.Click += (sender, e) =>
+        {
+            BeginInvoke(() =>
+            {
+                if (DialogResult.OK == MessageBox.Show("Application is exiting!", "Alt-C Detected", MessageBoxButtons.OKCancel))
+                {
+                    BeginInvoke(()=>Close());
+                }
+            });
         };
     }
 
-    private void OnExit()
+    private void EnableButtons(bool enabled)
     {
-        if(DialogResult.OK == MessageBox.Show("Application is exiting!", "Control-C Detected", MessageBoxButtons.OKCancel))
+        foreach (Button button in Controls.OfType<Button>())
         {
-            Close();
+            button.Enabled = enabled;
         }
     }
 
     private Dictionary<Keys, Action> Shortcuts { get; }
 
-    private void OnKeyF9()
-    {
-        textBox1.Text = $"{nameof(OnKeyF9)} Detected!";
-    }
-    public bool PreFilterMessage(ref Message m)
-    {
-        if (m.Msg == 0x100)
-        {
-            Keys keyData = (Keys)(int)m.WParam | Control.ModifierKeys;
-            if (Shortcuts.TryGetValue(keyData, out var action))
-            {
-                action();
-                return true;
-            }
-        }
-        return false;
-    }
+    CommandContext? CurrentCommandContext { get; set; }
 }
 ```

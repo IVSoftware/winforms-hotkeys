@@ -28,39 +28,52 @@
         /// </summary>
         private void InitializeComponent()
         {
-            textBox1 = new TextBox();
-            label1 = new Label();
+            textBox = new TextBox();
+            buttonRun = new Button();
+            buttonClose = new Button();
             SuspendLayout();
             // 
-            // textBox1
+            // textBox
             // 
-            textBox1.Font = new Font("Segoe UI", 12F);
-            textBox1.Location = new Point(90, 124);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(285, 39);
-            textBox1.TabIndex = 0;
+            textBox.Font = new Font("Segoe UI", 10F);
+            textBox.Location = new Point(195, 18);
+            textBox.Multiline = true;
+            textBox.Name = "textBox";
+            textBox.Size = new Size(254, 150);
+            textBox.TabIndex = 0;
             // 
-            // label1
+            // buttonRun
             // 
-            label1.AutoSize = true;
-            label1.BorderStyle = BorderStyle.FixedSingle;
-            label1.Font = new Font("Segoe UI", 11F);
-            label1.ForeColor = Color.Maroon;
-            label1.Location = new Point(92, 72);
-            label1.Name = "label1";
-            label1.Padding = new Padding(2);
-            label1.Size = new Size(273, 36);
-            label1.TabIndex = 1;
-            label1.Text = "Hit F9 to Populate Textbox";
-            label1.TextAlign = ContentAlignment.MiddleCenter;
+            buttonRun.AutoSize = true;
+            buttonRun.Font = new Font("Segoe UI", 9F);
+            buttonRun.ForeColor = Color.Maroon;
+            buttonRun.Location = new Point(12, 12);
+            buttonRun.Name = "buttonRun";
+            buttonRun.Padding = new Padding(2);
+            buttonRun.Size = new Size(160, 44);
+            buttonRun.TabIndex = 1;
+            buttonRun.Text = "&Run";
+            // 
+            // buttonClose
+            // 
+            buttonClose.AutoSize = true;
+            buttonClose.Font = new Font("Segoe UI", 9F);
+            buttonClose.ForeColor = Color.Maroon;
+            buttonClose.Location = new Point(289, 174);
+            buttonClose.Name = "buttonClose";
+            buttonClose.Padding = new Padding(2);
+            buttonClose.Size = new Size(160, 44);
+            buttonClose.TabIndex = 1;
+            buttonClose.Text = "&Close";
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(478, 244);
-            Controls.Add(label1);
-            Controls.Add(textBox1);
+            Controls.Add(buttonClose);
+            Controls.Add(buttonRun);
+            Controls.Add(textBox);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Main Form";
@@ -70,7 +83,8 @@
 
         #endregion
 
-        private TextBox textBox1;
-        private Label label1;
+        private TextBox textBox;
+        private Button buttonRun;
+        private Button buttonClose;
     }
 }
